@@ -1,0 +1,29 @@
+{
+  "name": "ecotrack-backend",
+  "version": "1.0.0",
+  "description": "EcoTrack Carbon Management Backend API",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "install-deps": "npm install express cors multer csv-parser"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "csv-parser": "^3.2.0",
+    "express": "^4.22.1",
+    "multer": "^1.4.5-lts.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "keywords": [
+    "carbon",
+    "management",
+    "sustainability",
+    "route-optimization",
+    "material-substitution"
+  ],
+  "author": "EcoTrack Team",
+  "license": "MIT"
+}

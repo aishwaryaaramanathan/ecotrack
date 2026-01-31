@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoTrack - Comprehensive Carbon Management</title>
+    <link rel="stylesheet" href="eco.css">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Tailwind CSS for material recommendation -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+
+<!-- Navbar -->
+<header class="navbar">
+    <div class="logo">
+        <div class="leaf">🌿</div>
+        <div>
+            <h1>EcoTrack</h1>
+            <p>Monitor and reduce your carbon footprint</p>
+        </div>
+    </div>
+    <nav>
+        <a href="#ingestion">Data Ingestion</a>
+        <a href="#outcome">Outcome</a>
+        <a href="#route">Route Optimization</a>
+        <a href="#materials">Materials</a>
+        <a href="#report">Report</a>
+    </nav>
+</header>
+
+<!-- Data Ingestion -->
+<section id="ingestion" class="section">
+    <h2>Data ingestion</h2>
+
+    <div class="upload-container">
+        <div id="dropArea" class="drop-area">
+            <div class="drop-content">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <h3>Drag & Drop CSV Files Here</h3>
+                <p>or</p>
+                <button id="uploadBtn" class="btn">Browse Files</button>
+                <input type="file" id="fileInput" accept=".csv" multiple hidden>
+            </div>
+        </div>
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar">
+                <div id="progress"></div>
+            </div>
+        </div>
+        <div id="uploadedList" class="uploaded-list"></div>
+    </div>
+
+    <!-- Data Selection Section -->
+    <div id="dataSelection" class="data-selection hidden">
+        <h3>📊 Select Data to Process</h3>
+        
+        <div class="selection-tabs">
+            <button class="tab-btn active" onclick="switchTab('routes')">🚚 Routes</button>
+            <button class="tab-btn" onclick="switchTab('materials')">🔬 Materials</button>
+        </div>
+
+        <!-- Routes Selection -->
+        <div id="routesTab" class="tab-content active">
+            <div class="selection-header">
+                <h4>Select Routes for Optimization</h4>
+                <button onclick="selectAllRoutes()" class="btn-small">Select All</button>
+                <button onclick="processSelectedRoutes()" class="btn btn-primary">Process Selected Routes</button>
+            </div>
+            <div id="routesList" class="data-list">
+                <!-- Routes will be populated here -->
+            </div>
+        </div>
+
+        <!-- Materials Selection -->
+        <div id="materialsTab" class="tab-content">
+            <div class="selection-header">
+                <h4>Select Materials for Substitution</h4>
+                <button onclick="selectAllMaterials()" class="btn-small">Select All</button>
+                <button onclick="processSelectedMaterials()" class="btn btn-primary">Process Selected Materials</button>
+            </div>
+            <div id="materialsList" class="data-list">
+                <!-- Materials will be populated here -->
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Outcome -->
+<section id="outcome" class="section">
+    <h2>Outcome</h2>
+
+    <div class="emission-box">Carbon Emissions: <span id="emissionValue">--</span></div>
+
+    <div class="cards">
+        <div class="card">Prediction</div>
+        <div class="card">Hotspot</div>
+        <div class="card">Route Optimization</div>
+    </div>
+</section>
+
+<!-- Route Simulation -->
+<section id="route" class="section">
+    <h2>Route Optimization & Carbon Reduction</h2>
+
+    <div class="route-controls">
+        <div class="control-panel">
+            <h3>📋 Route Configuration</h3>
+            <div class="city-selector">
+                <div class="input-group">
+                    <label>Origin City</label>
+                    <select id="origin"><option value="">Select origin...</option></select>
+                </div>
+                <div class="input-group">
+                    <label>Destination City</label>
+                    <select id="destination"><option value="">Select destination...</option></select>
+                </div>
+            </div>
+            <div class="route-options">
+                <div class="input-group">
+                    <label>Shipment Weight (tons)</label>
+                    <input type="number" id="weight" value="25" min="1" max="1000">
+                </div>
+                <div class="input-group">
+                    <label>Priority</label>
+                    <select id="priority">
+                        <option value="time">Time Critical</option>
+                        <option value="cost" selected>Cost Optimized</option>
+                        <option value="carbon">Carbon Optimized</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Max Distance (km)</label>
+                    <input type="number" id="maxDistance" value="600" min="50" max="1000">
+                </div>
+            </div>
+            <button id="optimizeBtn" onclick="optimizeRoute()">🚀 Optimize Route</button>
+            <button onclick="testGreenRoute()" style="background: #28a745; margin-left: 10px;">🧪 Test Green Route</button>
+        </div>
+
+        <div class="map-container">
+            <div id="map"></div>
+            <div class="route-legend">
+                <h4>🚦 Carbon Emission Levels</h4>
+                <div class="legend-item"><div class="legend-color" style="background: #28a745;"></div><span>Optimized (Low CO₂)</span></div>
+                <div class="legend-item"><div class="legend-color" style="background: #ffc107;"></div><span>Medium Emissions</span></div>
+                <div class="legend-item"><div class="legend-color" style="background: #dc3545;"></div><span>High Emissions</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="route-results" id="routeResults">
+        <h3>📊 Optimization Results</h3>
+        <div id="resultsContent"></div>
+    </div>
+
+    <div class="route-stats">
+        <span>Emission Saved: <b id="saved">--</b></span>
+        <span>Distance: <b id="distance">--</b></span>
+        <span>Transport Mode: <b id="mode">--</b></span>
+    </div>
+</section>
+
+<!-- Material Substitution -->
+<section id="materials" class="section">
+    <h2>Material Substitution Recommendations</h2>
+    
+    <div class="material-search">
+        <div class="search-container">
+            <label>Enter Material Name:</label>
+            <div class="search-input-group">
+                <input type="text" id="materialInput" placeholder="e.g., Steel, Aluminum, Concrete...">
+                <button onclick="searchMaterial()"><i class="fas fa-search"></i> Search</button>
+            </div>
+        </div>
+        
+        <div class="material-filters">
+            <div class="filter-group">
+                <label>Application:</label>
+                <select id="applicationFilter">
+                    <option value="">All Applications</option>
+                    <option value="construction">Construction</option>
+                    <option value="automotive">Automotive</option>
+                    <option value="packaging">Packaging</option>
+                    <option value="electronics">Electronics</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label>Max Carbon Reduction (%):</label>
+                <select id="reductionFilter">
+                    <option value="">Any</option>
+                    <option value="25">25%+</option>
+                    <option value="50">50%+</option>
+                    <option value="75">75%+</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label>Cost Preference:</label>
+                <select id="costFilter">
+                    <option value="">Any</option>
+                    <option value="lower">Lower Cost</option>
+                    <option value="similar">Similar Cost</option>
+                    <option value="higher">Higher Cost</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div id="materialLoading" class="loading-state hidden">
+        <div class="spinner"></div>
+        <p>Analyzing materials and generating recommendations...</p>
+    </div>
+
+    <div id="materialResults" class="material-results hidden">
+        <h3>Recommended Alternatives</h3>
+        <div id="recommendations" class="recommendations-grid">
+            <!-- Recommendations will be inserted here -->
+        </div>
+    </div>
+</section>
+
+<!-- Report -->
+<section id="report" class="section">
+    <h2>Report (Audit Trail)</h2>
+
+    <div class="report-controls">
+        <button onclick="generateAuditReport()" class="btn">📊 Generate Audit Report</button>
+        <button onclick="exportAuditData()" class="btn">📥 Export Audit Data</button>
+        <button onclick="clearAuditTrail()" class="btn btn-danger">🗑️ Clear Audit Trail</button>
+    </div>
+
+    <div class="audit-summary" id="auditSummary">
+        <h3>📈 Audit Summary</h3>
+        <div class="summary-cards">
+            <div class="summary-card">
+                <h4>Total Transactions</h4>
+                <span id="totalTransactions">0</span>
+            </div>
+            <div class="summary-card">
+                <h4>CSV Uploads</h4>
+                <span id="csvUploads">0</span>
+            </div>
+            <div class="summary-card">
+                <h4>Route Optimizations</h4>
+                <span id="routeOptimizations">0</span>
+            </div>
+            <div class="summary-card">
+                <h4>Material Substitutions</h4>
+                <span id="materialSubstitutions">0</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="audit-details" id="auditDetails">
+        <h3>📋 Recent Transactions</h3>
+        <div id="transactionsList">
+            <p>No audit data available. Perform some actions to generate audit trail.</p>
+        </div>
+    </div>
+
+    <div class="audit-export" id="auditExport" style="display: none;">
+        <h3>📄 Audit Report Export</h3>
+        <textarea id="exportedData" readonly style="width: 100%; height: 300px; font-family: monospace; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"></textarea>
+        <button onclick="copyToClipboard()" class="btn">📋 Copy to Clipboard</button>
+    </div>
+</section>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="eco.js"></script>
+</body>
+</html>
